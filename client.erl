@@ -1,8 +1,8 @@
 -module(client).
 -export([start/5]).
 
-start(ClientID, Entries, Reads, Writes, Server) ->
-    spawn(fun() -> open(ClientID, Entries, Reads, Writes, Server, 0, 0) end).
+start(ClientID, Subset, Reads, Writes, Server) ->
+    spawn(fun() -> open(ClientID, Subset, Reads, Writes, Server, 0, 0) end).
 
 open(ClientID, Entries, Reads, Writes, Server, Total, Ok) ->
     Server ! {open, self()},
@@ -43,16 +43,16 @@ do_transaction(ClientID, Entries, Reads, Writes, Handler) ->
             do_transaction(ClientID, Entries, Reads, Writes - 1, Handler)
     end.
 
-do_read(Entries, Handler) ->
+do_read(Subset, Handler) ->
     Ref = make_ref(),
-    Num = rand:uniform(Entries),
+    Num = lists:nth(rand:uniform(length(Subset)), Subset),
     Handler ! {read, Ref, Num},
     receive
         {value, Ref, Value} -> Value
     end.
 
-do_write(Entries, Handler, Value) ->
-    Num = rand:uniform(Entries),
+do_write(Subset, Handler, Value) ->
+    Num = lists:nth(rand:uniform(length(Subset)), Subset),
     Handler ! {write, Num, Value}.
 
 do_commit(Handler) ->
