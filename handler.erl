@@ -7,7 +7,7 @@ start(Client, Validator, Store) ->
 init(Client, Validator, Store) ->
     handler(Client, Validator, Store, [], []).
 
-handler(Client, Validator, Store, Reads, Writes) ->         
+handler(Client, Validator, Store, Reads, Writes) ->
     receive
         {read, Ref, N} ->
             case lists:keyfind(N, 1, Writes) of
@@ -21,7 +21,7 @@ handler(Client, Validator, Store, Reads, Writes) ->
             end;
         {Ref, Entry, Value, Time} ->
             Client ! {value, Ref, Value},
-            handler(Client, Validator, Store, [{Entry, Time}|Reads], Writes);
+            handler(Client, Validator, Store, [{Entry, Time} | Reads], Writes);
         {write, N, Value} ->
             Entry = store:lookup(N, Store),
             Added = lists:keystore(N, 1, Writes, {N, Entry, Value}),
