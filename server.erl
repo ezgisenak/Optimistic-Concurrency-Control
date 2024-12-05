@@ -8,9 +8,9 @@ init(N) ->
     Store = store:new(N),
     Validator = validator:start(),
     server(Validator, Store).
-    
+
 server(Validator, Store) ->
-    receive 
+    receive
         {open, Client} ->
             Client ! {transaction, Validator, Store},
             server(Validator, Store);
