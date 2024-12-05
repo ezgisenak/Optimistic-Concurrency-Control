@@ -13,9 +13,9 @@ entry(Value, Time) ->
             From ! {Ref, self(), Value, Time},
             entry(Value, Time);
         {write, New} ->
-            entry(New, make_ref()); 
+            entry(New, make_ref());
         {check, Ref, Readtime, From} ->
-            if 
+            if
                 Readtime == Time ->
                     From ! {Ref, ok};
                 true ->
