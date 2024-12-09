@@ -1,5 +1,5 @@
 -module(client).
--export([start/5]).
+-export([start/5, do_transaction/5]).
 
 start(ClientID, Entries, Reads, Writes, Server) ->
     spawn(fun() -> open(ClientID, Entries, Reads, Writes, Server, 0, 0) end).
@@ -9,13 +9,12 @@ open(ClientID, Entries, Reads, Writes, Server, Total, Ok) ->
         0 ->
             Server ! {open, self()},
             io:format("[Client][~w][~w] Sent `open` request to the server ~w~n", [node(), self(), Server]);
-        _ ->  % Exit after first completed transaction
-            ok
+        _ -> ok
     end,
     receive
         {stop, From} ->
             io:format("~w: Transactions TOTAL:~w, OK:~w, -> ~w % ~n",
-            [ClientID, Total, Ok, 100*Ok/Total]),
+                      [ClientID, Total, Ok, 100*Ok/Total]),
             From ! {done, self()},
             ok;
         {transaction, Validator, Store} ->
@@ -30,7 +29,7 @@ open(ClientID, Entries, Reads, Writes, Server, Total, Ok) ->
             end
     end.
 
-do_transaction(_, _, 0, 0, Handler) ->
+do_transaction(_, _, 0, 0, Handler) -> 
     do_commit(Handler);
 do_transaction(ClientID, Entries, 0, Writes, Handler) ->
     do_write(Entries, Handler, ClientID),
@@ -43,7 +42,7 @@ do_transaction(ClientID, Entries, Reads, Writes, Handler) ->
     if Op >= 0.5 ->
          do_read(Entries, Handler),
          do_transaction(ClientID, Entries, Reads-1, Writes, Handler);
-       true -> 
+       true ->
          do_write(Entries, Handler, ClientID),
          do_transaction(ClientID, Entries, Reads, Writes-1, Handler)
     end.
@@ -66,6 +65,3 @@ do_commit(Handler) ->
     receive
         {Ref, Value} -> Value
     end.
-
-
-    

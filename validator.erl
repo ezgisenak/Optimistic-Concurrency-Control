@@ -4,7 +4,8 @@
 start() ->
     spawn_link(fun() -> init() end).
 
-init()->
+init() ->
+    io:format("[Validator][~w] Validator process initialized~n", [node()]),
     validator().
 
 validator() ->
@@ -16,18 +17,20 @@ validator() ->
             case check_reads(length(Reads), Tag) of
                 ok ->
                     update(Writes),
-                    io:format("[Validator][~w] Transaction from Client ~w commited ~n", [node(), Client]),
+                    io:format("[Validator][~w] Transaction from Client ~w committed~n", [node(), Client]),
                     Client ! {Ref, ok};
                 abort ->
+                    io:format("[Validator][~w] Transaction from Client ~w aborted~n", [node(), Client]),
                     Client ! {Ref, abort}
             end,
             validator();
         stop ->
+            io:format("[Validator][~w] Validator shutting down~n", [node()]),
             ok;
         _Old ->
             validator()
     end.
-    
+
 update(Writes) ->
     lists:foreach(fun({_, Entry, Value}) -> 
                   Entry ! {write, Value}
