@@ -13,8 +13,8 @@ start(Clients, Entries, Reads, Writes, Time, Percentage) ->
     SubsetSize = round(Entries * Percentage),
     L = startClients(Clients, [], Entries, Reads, Writes, SubsetSize),
     io:format(
-        "Starting: ~w CLIENTS, ~w ENTRIES WITH ~w PERCENTAGE, ~w RDxTR, ~w WRxTR, DURATION ~w s~n",
-        [Clients, Entries, Percentage, Reads, Writes, Time]
+        "Starting: ~w CLIENTS, ~w ENTRIES, ~w RDxTR, ~w WRxTR, DURATION ~w s, WITH ~w PERCENTAGE~n",
+        [Clients, Entries, Reads, Writes, Time, Percentage]
     ),
     timer:sleep(Time * 1000),
     stop(L).
